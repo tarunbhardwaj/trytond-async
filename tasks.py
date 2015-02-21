@@ -17,7 +17,7 @@ from trytond.transaction import Transaction
 from trytond.pool import Pool
 from trytond.cache import Cache
 
-from trytond_async.celery import app
+from trytond_async.app import app
 
 
 class RetryWithDelay(Exception):

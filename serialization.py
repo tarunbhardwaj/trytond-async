@@ -8,6 +8,7 @@
     :copyright: (c) 2014 by Tryton authors
     :license: 3-clause BSD License, see COPYRIGHT for more details
 """
+import functools
 import datetime
 from decimal import Decimal
 try:
@@ -135,3 +136,20 @@ JSONEncoder.register(
         '__class__': 'Model',
         'repr': repr(o),
     })
+
+
+def register_serializer():
+    """
+    This is needed for the Kombu entry point to load encoders and decoders
+    to the registry. Celery depends on Kombu for low level serialization
+    from task.
+    """
+    from kombu.serialization import register
+    register(
+        'tryson',
+        functools.partial(json.dumps, cls=JSONEncoder),
+        functools.partial(json.loads, object_hook=JSONDecoder()),
+        content_type='application/x-tryson',
+        content_encoding='binary',
+    )
+register_serializer()
