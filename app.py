@@ -25,6 +25,12 @@ app = Celery(
 
 app.conf.update(
     CELERY_TASK_RESULT_EXPIRES=3600,
+    CELERY_TASK_SERIALIZER='tryson',
+    CELERY_RESULT_SERIALIZER='tryson',
+    CELERY_ACCEPT_CONTENT=[
+        'application/x-tryson',
+        'application/x-python-serialize'
+    ]
 )
 
 if __name__ == '__main__':
