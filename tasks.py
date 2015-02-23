@@ -59,7 +59,7 @@ def execute(app, database, user, payload_json):
 
         try:
             with Transaction().set_context(payload['context']):
-                return Async.execute_payload(payload)
+                results = Async.execute_payload(payload)
         except RetryWithDelay, exc:
             # A special error that would be raised by Tryton models to
             # retry the task after a certain delay. Useful when the task
@@ -77,3 +77,4 @@ def execute(app, database, user, payload_json):
             raise
         else:
             transaction.cursor.commit()
+            return results
