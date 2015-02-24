@@ -40,6 +40,9 @@ def execute(app, database, user, payload_json):
     Execute the task identified by the given payload in the given database
     as `user`.
     """
+    from trytond.config import CONFIG
+    CONFIG.set_timezone()
+
     if database not in Pool.database_list():
         # Initialise the database if this is the first time we see the
         # database being used.
@@ -77,4 +80,5 @@ def execute(app, database, user, payload_json):
             raise
         else:
             transaction.cursor.commit()
+            Cache.resets(database)
             return results
