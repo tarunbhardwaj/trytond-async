@@ -5,7 +5,6 @@ import sys
 import time
 import unittest
 import ConfigParser
-import tempfile
 from setuptools import setup, Command
 
 
@@ -28,19 +27,10 @@ class PostgresTest(Command):
         pass
 
     def run(self):
-        with tempfile.NamedTemporaryFile(delete=False) as config:
-            config.write(
-                "[options]\n"
-                "db_type = postgresql\n"
-                "db_host = localhost\n"
-                "db_port = 5432\n"
-                "db_user = postgres\n"
-                "broker_url = redis://localhost:6379/0\n"
-                "backend_url = redis://localhost:6379/1\n"
-            )
-
         os.environ['DB_NAME'] = 'test_' + str(int(time.time()))
-        os.environ['TRYTOND_CONFIG'] = config.name
+        os.environ['TRYTOND_DATABASE_URI'] = "postgresql://"
+        os.environ['TRYTOND_ASYNC-BROKER_URL'] = "redis://localhost:6379/0"
+        os.environ['TRYTOND_ASYNC-BACKEND_URL'] = "redis://localhost:6379/1"
 
         from tests import suite
 

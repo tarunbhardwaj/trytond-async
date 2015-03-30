@@ -46,7 +46,8 @@ def execute(app, database, user, payload_json):
         with Transaction().start(database, 0, readonly=True):
             Pool(database).init()
 
-    Cache.clean(database)
+    with Transaction().start(database, 0):
+        Cache.clean(database)
 
     with Transaction().start(database, user) as transaction:
         Async = Pool().get('async.async')
