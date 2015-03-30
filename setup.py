@@ -12,36 +12,6 @@ def read(fname):
     return open(os.path.join(os.path.dirname(__file__), fname)).read()
 
 
-class SQLiteTest(Command):
-    """
-    Run the tests on SQLite
-    """
-    description = "Run tests on SQLite"
-
-    user_options = []
-
-    def initialize_options(self):
-        pass
-
-    def finalize_options(self):
-        pass
-
-    def run(self):
-        if self.distribution.tests_require:
-            self.distribution.fetch_build_eggs(self.distribution.tests_require)
-
-        from trytond.config import CONFIG
-        CONFIG['db_type'] = 'sqlite'
-        os.environ['DB_NAME'] = ':memory:'
-
-        from tests import suite
-        test_result = unittest.TextTestRunner(verbosity=3).run(suite())
-
-        if test_result.wasSuccessful():
-            sys.exit(0)
-        sys.exit(-1)
-
-
 class PostgresTest(Command):
     """
     Run the tests on Postgres.
@@ -57,18 +27,13 @@ class PostgresTest(Command):
         pass
 
     def run(self):
-        if self.distribution.tests_require:
-            self.distribution.fetch_build_eggs(self.distribution.tests_require)
-
-        from trytond.config import CONFIG
-        CONFIG['db_type'] = 'postgresql'
-        CONFIG['db_host'] = 'localhost'
-        CONFIG['db_port'] = 5432
-        CONFIG['db_user'] = 'postgres'
-
         os.environ['DB_NAME'] = 'test_' + str(int(time.time()))
+        os.environ['TRYTOND_DATABASE_URI'] = "postgresql://"
+        os.environ['TRYTOND_ASYNC-BROKER_URL'] = "redis://localhost:6379/0"
+        os.environ['TRYTOND_ASYNC-BACKEND_URL'] = "redis://localhost:6379/1"
 
         from tests import suite
+
         test_result = unittest.TextTestRunner(verbosity=3).run(suite())
 
         if test_result.wasSuccessful():
@@ -149,11 +114,9 @@ setup(
     [trytond.modules]
     %s = trytond.modules.%s
     """ % (MODULE, MODULE),
-    tests_require=['moto'],
     test_suite='tests',
     test_loader='trytond.test_loader:Loader',
     cmdclass={
-        'test': SQLiteTest,
-        'test_on_postgres': PostgresTest,
+        'test': PostgresTest,
     }
 )

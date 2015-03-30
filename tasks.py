@@ -17,7 +17,7 @@ from trytond.transaction import Transaction
 from trytond.pool import Pool
 from trytond.cache import Cache
 
-from trytond_async.celery import app
+from trytond_async.app import app
 
 
 class RetryWithDelay(Exception):
@@ -46,7 +46,8 @@ def execute(app, database, user, payload_json):
         with Transaction().start(database, 0, readonly=True):
             Pool(database).init()
 
-    Cache.clean(database)
+    with Transaction().start(database, 0):
+        Cache.clean(database)
 
     with Transaction().start(database, user) as transaction:
         Async = Pool().get('async.async')
@@ -59,7 +60,7 @@ def execute(app, database, user, payload_json):
 
         try:
             with Transaction().set_context(payload['context']):
-                return Async.execute_payload(payload)
+                results = Async.execute_payload(payload)
         except RetryWithDelay, exc:
             # A special error that would be raised by Tryton models to
             # retry the task after a certain delay. Useful when the task
@@ -77,3 +78,4 @@ def execute(app, database, user, payload_json):
             raise
         else:
             transaction.cursor.commit()
+            return results

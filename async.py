@@ -11,11 +11,11 @@
     :license: 3-clause BSD License, see COPYRIGHT for more details
 """
 import wrapt
-from trytond_async.tasks import execute
 from trytond.pool import PoolMeta, Pool
 from trytond.model import ModelView, Model
 from trytond.transaction import Transaction
-from .serialization import json, JSONDecoder, JSONEncoder
+from trytond_async.serialization import json, JSONDecoder, JSONEncoder
+from trytond_async.tasks import execute
 
 
 __metaclass__ = PoolMeta
@@ -41,7 +41,7 @@ class task(object):
         self.visibility_timeout = visibility_timeout
 
     @wrapt.decorator
-    def __call__(self, wrapped, instance, args, kwargs):
+    def __call__(self, wrapped, instance, args, kwargs, **celery_options):
         """
         Read the docstring of this class before you decide to reimplement this.
         change the behavior in the `defer` method of `async.async` model.
@@ -58,12 +58,13 @@ class task(object):
             active_record = None
 
         Async = Pool().get('async.async')
-        return Async.defer(
+        return Async.apply_async(
             model=model_name,
             method=wrapped.__name__,
             instance=active_record,
             args=args,
             kwargs=kwargs,
+            **celery_options
         )
 
 
