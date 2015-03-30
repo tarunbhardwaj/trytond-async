@@ -11,15 +11,21 @@
 """
 from __future__ import absolute_import
 
-from celery import Celery
-from trytond.config import CONFIG
+import os
 
-CONFIG.update_etc()
+from celery import Celery
+from trytond.config import config
+
+config.update_etc()
+
+
+broker_url = config.get('async', 'broker_url')
+backend_url = config.get('async', 'backend_url')
 
 app = Celery(
     'trytond_async',
-    broker=CONFIG.options.get('broker_url'),
-    backend=CONFIG.options.get('backend_url'),
+    broker=broker_url or os.environ.get('TRYTOND_ASYNC-BROKER_URL'),
+    backend=broker_url or os.environ.get('TRYTOND_ASYNC-BACKEND_URL'),
     include=['trytond_async.tasks']
 )
 
