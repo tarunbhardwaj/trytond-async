@@ -10,6 +10,8 @@
     :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) LTD
     :license: 3-clause BSD License, see COPYRIGHT for more details
 """
+from celery import current_app
+
 import wrapt
 from trytond.pool import PoolMeta, Pool
 from trytond.model import ModelView, Model
@@ -66,6 +68,19 @@ class task(object):
             kwargs=kwargs,
             **celery_options
         )
+
+
+class MockResult(object):
+    """
+    A fake object that mimics the result object.
+    """
+    def __init__(self, result):
+        self.result = result
+
+    def get(self, *args, **kwargs):
+        return self.result
+
+    wait = get  # Deprecated old syntax
 
 
 class Async(ModelView):
@@ -129,12 +144,26 @@ class Async(ModelView):
         if isinstance(instance, Model):
             model_name = instance.__name__
 
+        args = args or []
+        kwargs = kwargs or {}
+
+        if current_app.conf.get('TEST_MODE', False):
+            if instance:
+                return MockResult(
+                    getattr(instance, method_name)(*args, **kwargs)
+                )
+            else:
+                CurrentModel = Pool().get(model_name)
+                return MockResult(
+                    getattr(CurrentModel, method_name)(*args, **kwargs)
+                )
+
         payload = {
             'model_name': model_name,
             'instance': instance,
             'method_name': method_name,
-            'args': args or [],
-            'kwargs': kwargs or {},
+            'args': args,
+            'kwargs': kwargs,
             'context': Transaction().context,
         }
         return execute.apply_async(
