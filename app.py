@@ -25,7 +25,7 @@ backend_url = config.get('async', 'backend_url')
 app = Celery(
     'trytond_async',
     broker=broker_url or os.environ.get('TRYTOND_ASYNC-BROKER_URL'),
-    backend=broker_url or os.environ.get('TRYTOND_ASYNC-BACKEND_URL'),
+    backend=backend_url or os.environ.get('TRYTOND_ASYNC-BACKEND_URL'),
     include=['trytond_async.tasks']
 )
 

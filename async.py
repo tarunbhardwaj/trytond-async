@@ -10,6 +10,7 @@
     :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) LTD
     :license: 3-clause BSD License, see COPYRIGHT for more details
 """
+from uuid import uuid4
 from celery import current_app
 
 import wrapt
@@ -75,6 +76,7 @@ class MockResult(object):
     A fake object that mimics the result object.
     """
     def __init__(self, result):
+        self.id = unicode(uuid4())
         self.result = result
 
     def get(self, *args, **kwargs):
