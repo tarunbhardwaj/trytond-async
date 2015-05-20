@@ -29,8 +29,8 @@ class PostgresTest(Command):
     def run(self):
         os.environ['DB_NAME'] = 'test_' + str(int(time.time()))
         os.environ['TRYTOND_DATABASE_URI'] = "postgresql://"
-        os.environ['TRYTOND_ASYNC-BROKER_URL'] = "redis://localhost:6379/0"
-        os.environ['TRYTOND_ASYNC-BACKEND_URL'] = "redis://localhost:6379/1"
+        os.environ['TRYTOND_ASYNC__BROKER_URL'] = "redis://localhost:6379/0"
+        os.environ['TRYTOND_ASYNC__BACKEND_URL'] = "redis://localhost:6379/1"
 
         from tests import suite
 
