@@ -3,10 +3,6 @@
     trytond_async_sqs.serialization
 
     Backports the 3.4 implementation of JSONEncoder and Decoder.
-
-    :copyright: (c) 2013-2014 by Openlabs Technologies & Consulting (P) LTD
-    :copyright: (c) 2014 by Tryton authors
-    :license: 3-clause BSD License, see COPYRIGHT for more details
 """
 import functools
 import datetime
