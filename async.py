@@ -6,9 +6,6 @@
     The implementation detail is hidden to provide an interface API that
     tryton developers are familiar with while making it possible to still
     customize behavior.
-
-    :copyright: (c) 2013-2015 by Openlabs Technologies & Consulting (P) LTD
-    :license: 3-clause BSD License, see COPYRIGHT for more details
 """
 import wrapt
 from trytond.pool import PoolMeta, Pool
