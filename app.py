@@ -16,6 +16,15 @@ import os
 from celery import Celery
 from trytond.config import config
 
+try:
+    from raven import Client
+    from raven.contrib.celery import register_signal
+except ImportError:
+    pass
+else:
+    if os.environ.get('SENTRY_DSN'):
+        register_signal(Client(os.environ.get('SENTRY_DSN')))
+
 config.update_etc()
 
 
