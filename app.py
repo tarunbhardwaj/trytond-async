@@ -45,7 +45,8 @@ app.conf.update(
     CELERY_ACCEPT_CONTENT=[
         'application/x-tryson',
         'application/x-python-serialize'
-    ]
+    ],
+    TEST_MODE=True if os.environ.get("DISABLE_ASYNC") else False
 )
 
 if __name__ == '__main__':
