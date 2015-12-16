@@ -66,7 +66,7 @@ def execute(app, database, user, payload_json):
             # retry the task after a certain delay. Useful when the task
             # got triggered before the record is ready and similar cases.
             transaction.cursor.rollback()
-            raise app.retry(exc=exc, delay=exc.delay)
+            raise app.retry(exc=exc, countdown=exc.delay)
         except DatabaseOperationalError, exc:
             # Strict transaction handling may cause this.
             # Rollback and Retry the whole transaction if within
