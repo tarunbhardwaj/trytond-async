@@ -34,8 +34,7 @@ class RetryWithDelay(Exception):
         self.delay = delay
 
 
-@app.task(bind=True, default_retry_delay=2)
-def execute(app, database, user, payload_json):
+def _execute(app, database, user, payload_json):
     """
     Execute the task identified by the given payload in the given database
     as `user`.
@@ -79,3 +78,8 @@ def execute(app, database, user, payload_json):
         else:
             transaction.cursor.commit()
             return results
+
+
+@app.task(bind=True, default_retry_delay=2)
+def execute(app, database, user, payload_json):
+    return _execute(app, database, user, payload_json)
