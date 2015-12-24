@@ -107,17 +107,10 @@ class Async(ModelView):
         return getattr(Pool().get(model), method)(*args, **kwargs)
 
     @classmethod
-    def apply_async(
+    def build_payload(
             cls, method, model=None, instance=None,
-            args=None, kwargs=None, **celery_options):
-        """Wrapper for painless asynchronous dispatch of method
-        inside given model.
-
-        .. note::
-
-            * Works only when called within a transaction.
-            * Required only if the menthod is not already decorated as a
-              async_sqs_task
+            args=None, kwargs=None):
+        """Generate payload for serialization of task
 
         :param model: String representing global name of the model or
                       reference to model class itself.
@@ -126,7 +119,6 @@ class Async(ModelView):
                          if it is an instance
         :param args: positional arguments passed on to method as list/tuple.
         :param kwargs: keyword arguments passed on to method as dict.
-        :returns :class:`AsyncResult`:
         """
         if isinstance(method, basestring):
             method_name = method
@@ -157,7 +149,7 @@ class Async(ModelView):
                     getattr(CurrentModel, method_name)(*args, **kwargs)
                 )
 
-        payload = {
+        return {
             'model_name': model_name,
             'instance': instance,
             'method_name': method_name,
@@ -165,6 +157,35 @@ class Async(ModelView):
             'kwargs': kwargs,
             'context': Transaction().context,
         }
+
+    @classmethod
+    def apply_async(
+            cls, method, model=None, instance=None,
+            args=None, kwargs=None, **celery_options):
+        """Wrapper for painless asynchronous dispatch of method
+        inside given model.
+
+        .. note::
+
+            * Works only when called within a transaction.
+            * Required only if the menthod is not already decorated as a
+              async_sqs_task
+
+        :param model: String representing global name of the model or
+                      reference to model class itself.
+        :param method: Name or method object
+        :param instance: The instance on which the method call should happen
+                         if it is an instance
+        :param args: positional arguments passed on to method as list/tuple.
+        :param kwargs: keyword arguments passed on to method as dict.
+        :returns :class:`AsyncResult`:
+        """
+        payload = cls.build_payload(method, model, instance, args, kwargs)
+
+        if isinstance(payload, MockResult):
+            # Test async call will return MockResult
+            return payload
+
         return execute.apply_async(
             # Args for the call
             (
