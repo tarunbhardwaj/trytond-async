@@ -23,7 +23,8 @@ except ImportError:
     pass
 else:
     if os.environ.get('SENTRY_DSN'):
-        register_signal(Client(os.environ.get('SENTRY_DSN')))
+        sentry_client = Client(os.environ.get('SENTRY_DSN'))
+        register_signal(sentry_client)
 
 config.update_etc()
 
