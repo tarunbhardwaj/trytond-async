@@ -7,7 +7,6 @@
     tryton developers are familiar with while making it possible to still
     customize behavior.
 """
-from uuid import uuid4
 from celery import current_app
 
 import wrapt
@@ -16,6 +15,7 @@ from trytond.model import ModelView, Model
 from trytond.transaction import Transaction
 from trytond_async.serialization import json, JSONDecoder, JSONEncoder
 from trytond_async.tasks import execute
+from trytond_async.mock_result import MockResult
 
 
 __metaclass__ = PoolMeta
@@ -66,20 +66,6 @@ class task(object):
             kwargs=kwargs,
             **celery_options
         )
-
-
-class MockResult(object):
-    """
-    A fake object that mimics the result object.
-    """
-    def __init__(self, result):
-        self.id = unicode(uuid4())
-        self.result = result
-
-    def get(self, *args, **kwargs):
-        return self.result
-
-    wait = get  # Deprecated old syntax
 
 
 class Async(ModelView):
