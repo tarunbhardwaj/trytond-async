@@ -64,19 +64,19 @@ def _execute(app, database, user, payload_json):
             # A special error that would be raised by Tryton models to
             # retry the task after a certain delay. Useful when the task
             # got triggered before the record is ready and similar cases.
-            transaction.cursor.rollback()
+            transaction.connection.rollback()
             raise app.retry(exc=exc, countdown=exc.delay)
         except DatabaseOperationalError, exc:
             # Strict transaction handling may cause this.
             # Rollback and Retry the whole transaction if within
             # max retries, or raise exception and quit.
-            transaction.cursor.rollback()
+            transaction.connection.rollback()
             raise app.retry(exc=exc)
         except Exception, exc:
-            transaction.cursor.rollback()
+            transaction.connection.rollback()
             raise
         else:
-            transaction.cursor.commit()
+            transaction.connection.commit()
             return results
 
 

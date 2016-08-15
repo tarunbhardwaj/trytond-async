@@ -14,7 +14,6 @@ except ImportError:
 import base64
 from trytond.model import Model
 from trytond.pool import Pool
-from trytond.tools import safe_eval
 
 
 class JSONDecoder(object):
@@ -49,14 +48,20 @@ JSONDecoder.register(
     )
 )
 JSONDecoder.register(
-    'buffer', lambda dct:
-    buffer(base64.decodestring(dct['base64']))
+    'timedelta',
+    lambda dct: datetime.timedelta(seconds=dct['seconds'])
 )
+
+
+def _bytes_decoder(dct):
+    cast = bytearray if bytes == str else bytes
+    return cast(base64.decodestring(dct['base64'].encode('utf-8')))
+JSONDecoder.register('bytes', _bytes_decoder)
 JSONDecoder.register(
     'Decimal', lambda dct: Decimal(dct['decimal'])
 )
 JSONDecoder.register(
-    'Model', lambda dct: safe_eval(dct['repr'], {'Pool': Pool})
+    'Model', lambda dct: eval(dct['repr'], {'Pool': Pool})
 )
 
 
@@ -115,11 +120,17 @@ JSONEncoder.register(
         'microsecond': o.microsecond,
     })
 JSONEncoder.register(
-    buffer,
+    datetime.timedelta,
     lambda o: {
-        '__class__': 'buffer',
-        'base64': base64.encodestring(o),
+        '__class__': 'timedelta',
+        'seconds': o.total_seconds(),
     })
+_bytes_encoder = lambda o: {  # noqa
+    '__class__': 'bytes',
+    'base64': base64.encodestring(o).decode('utf-8'),
+    }
+JSONEncoder.register(bytes, _bytes_encoder)
+JSONEncoder.register(bytearray, _bytes_encoder)
 JSONEncoder.register(
     Decimal,
     lambda o: {
