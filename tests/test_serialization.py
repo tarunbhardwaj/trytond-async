@@ -41,9 +41,9 @@ class TestSerialization(unittest.TestCase):
         'Test time'
         self.dumps_loads(datetime.datetime.now().time())
 
-    def test_buffer(self):
-        'Test buffer'
-        self.dumps_loads(buffer('foo'))
+    def test_bytes(self):
+        'Test Bytes'
+        self.dumps_loads(bytearray("foo"))
 
     def test_decimal(self):
         'Test Decimal'

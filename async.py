@@ -175,7 +175,7 @@ class Async(ModelView):
         return execute.apply_async(
             # Args for the call
             (
-                Transaction().cursor.database_name,
+                Transaction().database.name,
                 Transaction().user,
                 cls.serialize_payload(payload)
             ),

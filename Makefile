@@ -1,7 +1,7 @@
 test: test-sqlite test-postgres test-flake8
 
 test-postgres: install-dependencies
-	coverage run setup.py test
+	python setup.py test
 
 test-flake8:
 	pip install flake8
