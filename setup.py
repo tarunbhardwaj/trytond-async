@@ -53,7 +53,7 @@ minor_version = int(minor_version)
 
 requires = [
     'wrapt',
-    'celery',
+    'celery<4.0',
 ]
 
 MODULE2PREFIX = {}
