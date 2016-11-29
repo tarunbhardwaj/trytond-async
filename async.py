@@ -141,7 +141,7 @@ class Async(ModelView):
             'method_name': method_name,
             'args': args,
             'kwargs': kwargs,
-            'context': Transaction().context,
+            'context': Transaction().context.copy(),
         }
 
     @classmethod
